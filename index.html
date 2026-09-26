@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Live Fruit Juice — স্টাফ বিলিং</title>
-  <meta name="description" content="Live Fruit Juice — দোকানের স্টাফ বিলিং সিস্টেম">
+  <meta name="description" content="Live Fruit Juice — দোকানের স্টাফ বিলিং সিস্টেম (Supabase)">
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥤</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥤</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/20000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥤</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -16,37 +16,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Live Fruit Juice">
+  <!-- Supabase JS (REST + Realtime) — প্রকাশনযোগ্য anon কী, ব্রাউজারে রাখা নিরাপদ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
 </head>
 <body>
 <div id="app">
 
-  <!-- ================= RECOVERY BANNER ================= -->
-  <div id="recovery-banner" class="banner danger hidden">
+  <!-- ================= সংযোগ স্ট্যাটাস ================= -->
+  <div id="connection-banner" class="banner hidden">
     <span class="banner-icon" data-icon="alert"></span>
-    <div class="banner-text">
-      <strong id="recovery-title">আগের ডেটা পাওয়া যায়নি!</strong>
-      <span id="recovery-detail">ব্রাউজারের ডেটা মুছে গেছে বা ক্ষতিগ্রস্ত হয়েছে।</span>
-    </div>
-    <div class="banner-actions">
-      <button type="button" class="btn btn-sm btn-light" id="recover-btn">স্ন্যাপশট থেকে ফেরান</button>
-      <button type="button" class="btn btn-sm btn-ghost" id="recover-dismiss">পরে</button>
-    </div>
+    <div class="banner-text"><strong id="connection-title">সংযোগ বিচ্ছিন্ন</strong><span id="connection-detail">Supabase-এর সাথে যুক্ত নয়।</span></div>
   </div>
 
-  <!-- ================= BACKUP REMINDER ================= -->
-  <div id="backup-banner" class="banner warn hidden">
-    <span class="banner-icon" data-icon="info"></span>
-    <div class="banner-text">
-      <strong id="backup-reminder-text">ব্যাকআপ নেওয়া হয়নি</strong>
-      <span>সেটিংস থেকে এক ক্লিকে ব্যাকআপ ফাইল নিন — ডেটা চলে গেলে ফিরিয়ে আনা যাবে।</span>
-    </div>
-    <div class="banner-actions">
-      <button type="button" class="btn btn-sm btn-light" id="backup-now-btn">ব্যাকআপ নিন</button>
-      <button type="button" class="btn btn-sm btn-ghost" id="backup-dismiss">পরে</button>
-    </div>
-  </div>
-
-  <!-- ================= LOGIN ================= -->
+  <!-- ================= লগইন ================= -->
   <div id="login-page" class="page active">
     <div class="login-container">
       <div class="login-card">
@@ -82,16 +68,11 @@
         </form>
 
         <div id="login-error" class="error-message hidden"></div>
-
-        <div class="login-footer">
-          <p>Live Fruit Juice Billing System v2.0</p>
-          <button type="button" class="link-btn" id="import-from-login">ফাইল থেকে ডেটা নিন</button>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= BILLING (POS) ================= -->
+  <!-- ================= বিলিং (POS) ================= -->
   <div id="billing-page" class="page">
     <header class="top-bar">
       <div class="top-bar-left">
@@ -112,26 +93,23 @@
             <span class="nav-icon" data-icon="billing"></span><span>বিলিং</span>
           </a>
           <a href="#" class="nav-item" data-page="today-bills">
-            <span class="nav-icon" data-icon="list"></span><span>আজকের বিলসমূহ</span>
+            <span class="nav-icon" data-icon="today"></span><span>আজকের বিলসমূহ</span>
           </a>
           <a href="#" class="nav-item owner-only" data-page="products" style="display:none">
             <span class="nav-icon" data-icon="cup"></span><span>পণ্য ম্যানেজ</span>
-          </a>
-          <a href="#" class="nav-item owner-only" data-page="staff" style="display:none">
-            <span class="nav-icon" data-icon="users"></span><span>স্টাফ ম্যানেজ</span>
           </a>
           <a href="#" class="nav-item owner-only" data-page="settings" style="display:none">
             <span class="nav-icon" data-icon="settings"></span><span>সেটিংস</span>
           </a>
         </nav>
         <div class="sidebar-footer">
-          <div class="version-info">v2.0.0</div>
+          <div class="version-info">v3.0 সাপবেস</div>
         </div>
       </aside>
 
       <main id="main-content" class="main-content">
 
-        <!-- BILLING -->
+        <!-- বিলিং -->
         <section id="billing-view" class="view active">
           <div class="pos-grid">
             <div class="products-panel">
@@ -178,10 +156,13 @@
           </div>
         </section>
 
-        <!-- TODAY'S BILLS -->
+        <!-- আজকের বিলসমূহ -->
         <section id="today-bills-view" class="view">
           <div class="view-header">
-            <h2>আজকের বিলসমূহ</h2>
+            <div>
+              <h2>আজকের বিলসমূহ</h2>
+              <div class="bill-sub"><span id="bills-count" class="bill-no"></span></div>
+            </div>
             <div class="filter-controls owner-only" id="staff-filter-wrapper" style="display:none">
               <label for="staff-filter">স্টাফ</label>
               <select id="staff-filter" class="select-field"><option value="all">সবাই</option></select>
@@ -190,7 +171,7 @@
           <div id="bills-list" class="bills-list"></div>
         </section>
 
-        <!-- PRODUCTS MANAGEMENT -->
+        <!-- পণ্য ম্যানেজ (ওনার) -->
         <section id="products-view" class="view owner-only" style="display:none">
           <div class="view-header">
             <h2>পণ্য ম্যানেজমেন্ট</h2>
@@ -199,16 +180,7 @@
           <div id="products-manage-list" class="manage-list"></div>
         </section>
 
-        <!-- STAFF MANAGEMENT -->
-        <section id="staff-view" class="view owner-only" style="display:none">
-          <div class="view-header">
-            <h2>স্টাফ ম্যানেজমেন্ট</h2>
-            <button id="new-staff-btn" class="btn btn-primary">+ নতুন স্টাফ</button>
-          </div>
-          <div id="staff-manage-list" class="manage-list"></div>
-        </section>
-
-        <!-- SETTINGS -->
+        <!-- সেটিংস (স্থানীয়, ওনার) -->
         <section id="settings-view" class="view owner-only" style="display:none">
           <div class="view-header"><h2>দোকানের সেটিংস</h2></div>
 
@@ -221,11 +193,11 @@
               </div>
               <div class="form-group">
                 <label for="shop-address">ঠিকানা *</label>
-                <textarea id="shop-address" class="input-field" rows="3" required placeholder="দোকানের পূর্ণ ঠিকানা"></textarea>
+                <textarea id="shop-address" class="input-field" rows="3" placeholder="দোকানের ঠিকানা"></textarea>
               </div>
               <div class="form-group">
                 <label for="shop-phone">মোবাইল নম্বর *</label>
-                <input type="tel" id="shop-phone" class="input-field" required placeholder="০১XXXXXXXXX">
+                <input type="tel" id="shop-phone" class="input-field" placeholder="০১XXXXXXXXX">
               </div>
             </div>
 
@@ -248,34 +220,6 @@
             <button type="submit" class="btn btn-primary btn-block">সেভ করুন</button>
           </form>
           <div id="settings-message" class="settings-message hidden"></div>
-
-          <div class="settings-section" style="margin-top:32px">
-            <h3>ডেটা ব্যাকআপ</h3>
-            <p class="help-text">
-              সব ডেটা এই ডিভাইসের ব্রাউজারে JSON হিসেবে সেভ থাকে।
-              নিয়মিত ব্যাকআপ ফাইল নিন — সেটা দিয়ে অন্য ডিভাইসেও ডেটা নেওয়া যাবে।
-            </p>
-            <div class="flex gap-sm" style="flex-wrap:wrap">
-              <button type="button" class="btn btn-secondary" id="export-btn">ব্যাকআপ ডাউনলোড</button>
-              <label class="btn btn-secondary file-label" style="cursor:pointer;margin:0">
-                ফাইল থেকে ডেটা নিন
-                <input type="file" id="import-input" accept="application/json,.json" class="hidden">
-              </label>
-            </div>
-            <p class="help-text" id="storage-usage" style="margin-top:12px"></p>
-            <p class="help-text" id="last-backup-info"></p>
-
-            <h3 style="margin-top:24px">স্বয়ংক্রিয় সুরক্ষা কপি</h3>
-            <p class="help-text">
-              প্রতিটি পরিবর্তনের সময় অ্যাপ নিজে থেকেই ডেটার একটি কপি রাখে (সর্বোচ্চ
-              <span id="snap-max">৫</span>টি)। ব্রাউজারের ডেটা মুছে গেলেও এখান থেকে ফিরিয়ে আনা যাবে।
-            </p>
-            <div id="snapshot-list" class="snapshot-list"></div>
-
-            <div class="danger-zone">
-              <button type="button" class="btn btn-danger" id="reset-btn">সব ডেটা মুছে নতুন করে শুরু</button>
-            </div>
-          </div>
         </section>
       </main>
     </div>
@@ -283,12 +227,12 @@
     <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
   </div>
 
-  <!-- ================= PRINT RECEIPT ================= -->
+  <!-- ================= প্রিন্ট রিসিট ================= -->
   <div id="print-page" class="page print-page">
     <div class="receipt-container" id="receipt-container"></div>
   </div>
 
-  <!-- ================= PRODUCT MODAL ================= -->
+  <!-- ================= পণ্য মোডাল ================= -->
   <div id="product-modal" class="modal">
     <div class="modal-content">
       <h3 id="product-modal-title">নতুন পণ্য</h3>
@@ -319,36 +263,7 @@
     </div>
   </div>
 
-  <!-- ================= STAFF MODAL ================= -->
-  <div id="staff-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="staff-modal-title">নতুন স্টাফ</h3>
-      <form id="staff-form" class="form-compact">
-        <div class="form-group">
-          <label for="s-username">ইউজারনেম *</label>
-          <input type="text" id="s-username" class="input-field" required placeholder="যেমন: rakib"
-                 autocapitalize="off" spellcheck="false">
-        </div>
-        <div class="form-group">
-          <label for="s-password">পাসওয়ার্ড <span id="s-pass-hint" class="hint"></span></label>
-          <input type="text" id="s-password" class="input-field" placeholder="কমপক্ষে ৪ অক্ষর">
-        </div>
-        <div class="form-group">
-          <label for="s-role">ভূমিকা</label>
-          <select id="s-role" class="select-field" style="width:100%">
-            <option value="staff">স্টাফ (শুধু নিজের বিল)</option>
-            <option value="owner">ওনার (সবকিছু দেখবেন)</option>
-          </select>
-        </div>
-        <div class="modal-actions">
-          <button type="button" id="s-cancel" class="btn btn-secondary">বাতিল</button>
-          <button type="submit" class="btn btn-primary">সেভ করুন</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ================= CONFIRM MODAL ================= -->
+  <!-- ================= নিশ্চয়তামূলক মোডাল ================= -->
   <div id="confirm-modal" class="modal">
     <div class="modal-content">
       <h3 id="modal-title">নিশ্চিত করুন</h3>
@@ -362,9 +277,5 @@
 
   <div id="toast-container" class="toast-container"></div>
 </div>
-
-<script src="js/api.js"></script>
-<script src="js/store.js"></script>
-<script src="js/app.js"></script>
 </body>
 </html>

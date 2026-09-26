@@ -12,7 +12,6 @@
   const API = global.API;
   const SALT = global.LFJ_CONFIG.passwordSalt;
   const DEFAULT_SETTINGS = {
-    ...global.LFJ_CONFIG,
     shop_name: global.LFJ_CONFIG.defaultShopName,
     shop_address: "",
     shop_phone: "",
@@ -71,8 +70,8 @@
 
   /* ---------- স্টেট ---------- */
   let user = readSession();
-  let products = [];
-  let employees = [];
+  let productList = [];
+  let employeeList = [];
   let todayInvoices = [];
   let unsubProducts = null;
   let online = navigator.onLine;
@@ -134,8 +133,8 @@
     user = null;
     saveSession(null);
     stopProductsRealtime();
-    products = [];
-    employees = [];
+    productList = [];
+    employeeList = [];
     todayInvoices = [];
     notify("logout");
   }
@@ -145,8 +144,8 @@
     const me = user;
     if (!me) return;
     try {
-      products = await API.fetchProducts();
-      employees = await API.fetchEmployees();
+      productList = await API.fetchProducts();
+      employeeList = await API.fetchEmployees();
       todayInvoices = await API.fetchInvoicesOfDay(todayStr(), me.role === "owner" ? null : me.username);
       setOnline(true);
     } catch (e) {
@@ -160,7 +159,7 @@
   async function refreshProducts() {
     try {
       const list = await API.fetchProducts();
-      products = list;
+      productList = list;
       notify("products");
     } catch (e) {
       if (API.isOffline(e)) setOnline(false);
@@ -184,7 +183,7 @@
 
   /* ---------- পণ্য (Realtime) ---------- */
   function products() {
-    return products.slice();
+    return productList.slice();
   }
   const priceFor = (p, s) => Number(p["price_" + String(s).toLowerCase()] || 0) || 0;
 
@@ -194,13 +193,13 @@
       const row = payload.new || payload.old || {};
       const ev = (payload.event || "").toUpperCase();
       if (ev === "DELETE") {
-        products = products.filter((p) => p.id !== row.id);
+        productList = productList.filter((p) => p.id !== row.id);
       } else {
-        const i = products.findIndex((p) => p.id === row.id);
-        if (i >= 0) products[i] = { ...row };
-        else products.push({ ...row });
+        const i = productList.findIndex((p) => p.id === row.id);
+        if (i >= 0) productList[i] = { ...row };
+        else productList.push({ ...row });
       }
-      products.sort((a, b) => String(a.name).localeCompare(String(b.name), "bn"));
+      productList.sort((a, b) => String(a.name).localeCompare(String(b.name), "bn"));
       notify("products");
     });
     notify("realtime");
@@ -227,27 +226,27 @@
 
   async function addProduct(body) {
     const res = await API.insertProduct(localProduct(body));
-    products.push(res);
-    products.sort((a, b) => String(a.name).localeCompare(String(b.name), "bn"));
+    productList.push(res);
+    productList.sort((a, b) => String(a.name).localeCompare(String(b.name), "bn"));
     notify("products");
     return res;
   }
   async function updateProduct(id, body) {
     const res = await API.updateProduct(id, localProduct(body, id));
-    const i = products.findIndex((p) => p.id === id);
-    if (i >= 0) products[i] = res;
+    const i = productList.findIndex((p) => p.id === id);
+    if (i >= 0) productList[i] = res;
     notify("products");
     return res;
   }
   async function deleteProduct(id) {
     await API.deleteProduct(id);
-    products = products.filter((p) => p.id !== id);
+    productList = productList.filter((p) => p.id !== id);
     notify("products");
   }
 
   /* ---------- স্টাফ (তালিকা ও ফিল্টার জন্য; ম্যানেজমেন্ট নেই) ---------- */
   function employees() {
-    return employees.slice();
+    return employeeList.slice();
   }
 
   /* ---------- সেটিংস (স্থানীয়) ---------- */
@@ -262,10 +261,6 @@
   }
 
   /* ---------- বিল ---------- */
-  /** তারিখ + রানিং কাউন্টার দিয়ে ইনভয়েস নম্বর (কনফ্লিক্টে রি-ট্রি) */
-  function nextInvoiceNo(dateStr) {
-    return `${dateStr.replace(/-/g, "")}-${String(1).padStart(3, "0")}`;
-  }
 
   async function createInvoice({ customer, paid, lines }, seller) {
     const dateStr = todayStr();
@@ -392,9 +387,8 @@
     products, employees,
     addProduct, updateProduct, deleteProduct,
     refreshProducts, refreshInvoices, refreshAll,
-    createInvoice, invoices, invoiceWithItems, deleteInvoice, statsToday,
-    settings, saveSettingsChanges,
-    onChange,
-    nextInvoiceNo,
-  };
+     createInvoice, invoices, invoiceWithItems, deleteInvoice, statsToday,
+     settings, saveSettingsChanges,
+     onChange,
+   };
 })(typeof window !== "undefined" ? window : this);

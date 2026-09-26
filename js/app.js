@@ -1,7 +1,9 @@
 /* ==========================================================
-   Live Fruit Juice — App (UI layer, talks to window.Store)
+   Live Fruit Juice — App (UI স্তর, window.Store-এর সাথে কথা বলে)
+   ------------------------------------------------------------
+   স্ক্রিন: লগইন, বিলিং/POS, প্রিন্ট রিসিট, আজকের বিলসমূহ,
+   পণ্য ম্যানেজ (ওনার), সেটিংস (স্থানীয়)।
    ========================================================== */
-
 (function () {
   "use strict";
 
@@ -11,34 +13,34 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
-  /* ---------------- ICONS ---------------- */
+  /* ---------------- আইকন প্যাক (ইনলাইন SVG) ---------------- */
   const I = {
     menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
     billing: '<path d="M6 2h12a2 2 0 0 1 2 2v16l-4-2-4 2-4-2-4 2V4a2 2 0 0 1 2-2z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
-    list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+    today: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
     cup: '<path d="M4 4h13l-1.5 15a2 2 0 0 1-2 1.75H7.5a2 2 0 0 1-2-1.75z"/><path d="M17 6h2.5a2 2 0 0 1 0 5H17"/>',
-    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
-    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1V3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/>',
     print: '<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
     trash: '<path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
     edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>',
-    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-    lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+    lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
     cart: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
     receipt: '<path d="M4 2v20l2-1.5L8 22l2-1.5L12 22l2-1.5L16 22l2-1.5L20 22V2l-2 1.5L16 2l-2 1.5L12 2l-2 1.5L8 2 6 3.5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
     check: '<path d="M20 6 9 17l-5-5"/>',
     alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
     info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
     back: '<path d="M19 12H5M12 19l-7-7 7-7"/>',
-    plus: '<path d="M12 5v14M5 12h14"/>',
-    minus: '<path d="M5 12h14"/>',
   };
 
   function svg(name, size = 20, extra = "") {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="${size}" height="${size}" ${extra} aria-hidden="true">${I[name] || ""}</svg>`;
+    const path = I[name] || "";
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="${size}" height="${size}" ${extra} aria-hidden="true">${path}</svg>`;
   }
   function paintIcons() {
     $$("[data-icon]").forEach((el) => {
@@ -46,37 +48,35 @@
     });
   }
 
-  /* ---------------- STATE ---------------- */
+  /* ---------------- স্টেট ---------------- */
   const state = {
-    user: null,          // { username, role }
+    user: null,
     products: [],
     cart: [],
-    settings: S.DEFAULT_SETTINGS,
+    settings: { ...S.DEFAULT_SETTINGS },
+    employees: [],
     view: "billing",
     ownerFilter: "all",
     editingProductId: null,
-    editingStaffId: null,
   };
 
-  /* ---------------- UTIL ---------------- */
+  /* ---------------- ইউটিল ---------------- */
   const money = (n) =>
     CURRENCY +
     (Math.round((Number(n) || 0) * 100) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
-
   function prettyTime(t) {
     if (!t) return "";
     const [h, m] = String(t).split(":");
-    const hh = Number(h);
+    const hh = Number(h) % 24;
     return `${hh % 12 === 0 ? 12 : hh % 12}:${m} ${hh >= 12 ? "PM" : "AM"}`;
   }
-
   const esc = (s) =>
     String(s == null ? "" : s)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-  /* ---------------- TOAST / MODAL ---------------- */
-  function toast(msg, type = "info", ms = 3200) {
+  /* ---------------- টোয়াস্ট / মোডাল ---------------- */
+  function toast(msg, type = "info", ms = 3000) {
     const box = $("#toast-container");
     if (!box) return;
     const ic = { success: "check", error: "alert", warning: "alert", info: "info" }[type] || "info";
@@ -91,9 +91,8 @@
       setTimeout(() => el.remove(), 300);
     }, ms);
   }
-
-  const openModal = (el) => el.classList.add("visible");
-  const closeModal = (el) => el.classList.remove("visible");
+  const openModal = (el) => { if (el) el.classList.add("visible"); };
+  const closeModal = (el) => { if (el) el.classList.remove("visible"); };
 
   function confirmDialog(message, title = "নিশ্চিত করুন") {
     return new Promise((resolve) => {
@@ -112,13 +111,12 @@
     });
   }
 
-  /* ---------------- LOGIN ---------------- */
+  /* ---------------- লগইন ---------------- */
   async function handleLogin(e) {
     e.preventDefault();
     const err = $("#login-error");
     const username = $("#username").value.trim();
     const password = $("#password").value;
-
     err.classList.add("hidden");
     if (!username || !password) return;
 
@@ -131,13 +129,11 @@
       state.user = user;
       $("#password").value = "";
       enterApp();
-      maybeOfferMigration();
     } catch (ex) {
-      // a connection problem is not a wrong password — say which it is
-      const offline = ex && (ex.offline || ex.name === "OfflineError");
-      err.textContent = offline
-        ? "সার্ভারের সাথে সংযোগ হচ্ছে না — ইন্টারনেট দেখে নিন"
-        : ex.message || "ইউজারনেম বা পাসওয়ার্ড ভুল";
+      err.textContent =
+        ex && ex.offline
+          ? "সার্ভারের সাথে সংযোগ হচ্ছে না — ইন্টারনেট চেক করুন"
+          : ex.message || "ইউজারনেম বা পাসওয়ার্ড ভুল";
       err.classList.remove("hidden");
       $("#password").focus();
     } finally {
@@ -145,20 +141,12 @@
     }
   }
 
-  function logout(force) {
-    if (!force && cartCount() > 0) {
-      confirmDialog("কার্টে পণ্য আছে। তবুও লগ আউট করবেন?", "লগ আউট").then((ok) => {
-        if (ok) doLogout();
-      });
-      return;
-    }
-    doLogout();
-  }
-
   async function doLogout() {
-    // a queued bill is not lost by logging out, but the person must know
-    const waiting = S.pendingCount();
-    await S.logout();
+    if (cartCount() > 0) {
+      const ok = await confirmDialog("কার্টে পণ্য আছে। তবুও লগ আউট করবেন?", "লগ আউট");
+      if (!ok) return;
+    }
+    S.logout();
     state.user = null;
     state.cart = [];
     renderCart();
@@ -166,22 +154,17 @@
     $("#login-form").reset();
     $("#login-error").classList.add("hidden");
     updateConnection();
-    if (waiting) {
-      toast(`${waiting}টি বিল সার্ভারে পাঠানো বাকি আছে — ইন্টারনেট ফিরলে পাঠানো হবে`, "warning");
-    }
   }
 
-  /* ---------------- NAVIGATION ---------------- */
+  /* ---------------- পেজ / নেভিগেশন ---------------- */
   function showPage(id) {
     $$(".page").forEach((p) => p.classList.remove("active"));
-    const el = $("#" + id);
-    if (el) el.classList.add("active");
+    $("#" + id)?.classList.add("active");
   }
-
-  const OWNER_ONLY = ["products", "staff", "settings"];
+  const OWNER_PAGES = ["products", "settings"];
 
   function setView(name) {
-    if (state.user && state.user.role !== "owner" && OWNER_ONLY.includes(name)) {
+    if (state.user && state.user.role !== "owner" && OWNER_PAGES.includes(name)) {
       toast("শুধুমাত্র মালিক এই পেজ দেখতে পারবেন", "warning");
       name = "billing";
     }
@@ -191,17 +174,13 @@
       billing: "billing-view",
       "today-bills": "today-bills-view",
       products: "products-view",
-      staff: "staff-view",
       settings: "settings-view",
     };
-    const el = $("#" + (map[name] || "billing-view"));
-    if (el) el.classList.add("active");
+    $("#" + (map[name] || "billing-view"))?.classList.add("active");
     $$(".nav-item").forEach((n) => n.classList.toggle("active", n.dataset.page === name));
     closeSidebar();
-
     if (name === "today-bills") renderBills();
     if (name === "products") renderProductsManage();
-    if (name === "staff") renderStaffManage();
     if (name === "settings") fillSettings();
     window.scrollTo({ top: 0 });
   }
@@ -220,96 +199,75 @@
     setTimeout(() => { if (!ov.classList.contains("visible")) ov.classList.add("hidden"); }, 250);
   }
 
-  /* ---------------- ENTER APP ---------------- */
+  /* ---------------- অ্যাপে প্রবেশ ---------------- */
   function enterApp() {
     const isOwner = state.user.role === "owner";
     showPage("billing-page");
-    $("#current-user").innerHTML =
-      `${svg("user", 15)} ${esc(state.user.username)} · ${isOwner ? "ওনার" : "স্টাফ"}`;
+    $("#current-user").innerHTML = `${svg("user", 15)} ${esc(state.user.username)} · ${isOwner ? "ওনার" : "স্টাফ"}`;
     $$(".owner-only").forEach((el) => (el.style.display = isOwner ? "" : "none"));
-    refreshData();
-    setView("billing");
-    checkBackupReminder();
-    updateConnection();
-  }
-
-  /* ---------------- CONNECTION / SYNC ---------------- */
-
-  /** the till keeps working offline, so the header must say so plainly */
-  function updateConnection() {
-    const el = $("#sync-status");
-    if (!el) return;
-    const pending = S.pendingCount();
-    const online = S.isOnline();
-
-    if (!el.dataset.ready) {
-      el.hidden = false;
-      el.dataset.ready = "1";
-    }
-
-    if (!online) {
-      el.className = "sync-badge offline";
-      el.innerHTML = pending
-        ? `${svg("info", 14)} অফলাইন · ${pending}টি বিল বাকি`
-        : `${svg("info", 14)} অফলাইন`;
-      el.title = pending
-        ? `${pending}টি বিল এই ডিভাইসে সংরক্ষিত আছে। ইন্টারনেট ফিরলে সেগুলো সার্ভারে চলে যাবে।`
-        : "ইন্টারনেট নেই। বিল দিতে পারবেন, পরে সার্ভারে যাবে।";
-      return;
-    }
-    if (pending) {
-      el.className = "sync-badge syncing";
-      el.innerHTML = `${svg("info", 14)} ${pending}টি পাঠানো হচ্ছে`;
-      el.title = "সার্ভারে পাঠানো বাকি বিল পাঠানো হচ্ছে";
-      return;
-    }
-    el.className = "sync-badge online";
-    el.innerHTML = `${svg("check", 14)} সেভ হয়েছে`;
-    el.title = "সব বিল সার্ভারে সেভ আছে";
-  }
-
-  /** owner only: offer to push the old browser-only data up to the server */
-  async function maybeOfferMigration() {
-    if (!state.user || state.user.role !== "owner") return;
-    if (!S.needsMigration()) return;
-    const legacy = S.legacyData();
-    const ok = await confirmDialog(
-      `এই ব্রাউজারে আগে ${legacy.invoices.length}টি বিল সংরক্ষিত আছে (সার্ভার ব্যবহারের আগে)।\n` +
-      "সেগুলো সার্ভারে নিয়ে যাব? এতে সব ডিভাইসে একই বিল দেখা যাবে।",
-      "আগের বিল নিয়ে যাওয়া"
-    );
-    if (!ok) { S.markMigrated(); return; }
-    try {
-      const res = await API.restoreDryRun(legacy);
-      await API.restore(legacy);
-      S.markMigrated();
-      await S.sync();
-      refreshData();
-      toast(`${res.invoices}টি আগের বিল সার্ভারে নিয়ে যাওয়া হয়েছে`, "success");
-    } catch (e) {
-      toast(e.message || "আগের বিল নিয়ে যাওয়া যায়নি", "error");
-    }
-  }
-
-  function refreshData() {
-    state.products = S.products();
     state.settings = S.settings();
+    state.products = S.products();
+    state.employees = S.employees();
     renderProducts();
     renderStaffFilter();
-    if (state.view === "billing") renderCart();
+    renderCart();
+    setView("billing");
+    updateConnection();
+    S.onChange((reason) => {
+      if (reason === "products" || reason === "realtime") {
+        state.products = S.products();
+        renderProducts();
+        if (state.view === "products") renderProductsManage();
+      }
+      if (reason === "bills") {
+        if (state.view === "today-bills") renderBills();
+      }
+      if (reason === "settings") state.settings = S.settings();
+      if (reason === "connection") updateConnection();
+    });
   }
 
+  /* ---------------- কানেকশন ব্যাজ / ব্যানার ---------------- */
+  function updateConnection() {
+    const el = $("#sync-status");
+    const banner = $("#connection-banner");
+    if (!el) return;
+    const online = S.isOnline();
+    el.dataset.ready = "1";
+    el.hidden = false;
+    if (online) {
+      el.className = "sync-badge online";
+      el.innerHTML = `${svg("check", 14)} সংযুক্ত`;
+      el.title = "Supabase-এর সাথে যুক্ত";
+      if (banner) banner.classList.add("hidden");
+    } else {
+      el.className = "sync-badge offline";
+      el.innerHTML = `${svg("alert", 14)} অফলাইন`;
+      el.title = "ইন্টারনেট নেই — বিল দিতে পারবেন না";
+      if (banner) {
+        banner.classList.remove("hidden");
+        $("#connection-title").textContent = "ইন্টারনেট নেই";
+        $("#connection-detail").textContent = "Supabase-এর সাথে সংযোগ বিচ্ছিন্ন। বিল দিতে পারবেন না।";
+      }
+    }
+  }
+
+  /* ---------------- স্টাফ ফিল্টার (ওনারের আজকের বিল) ---------------- */
   function renderStaffFilter() {
     const sel = $("#staff-filter");
-    if (!sel) return;
-    const list = S.employees();
+    const wrap = $("#staff-filter-wrapper");
+    if (!sel || !wrap) return;
+    const isOwner = state.user.role === "owner";
+    wrap.style.display = isOwner ? "" : "none";
+    if (!isOwner) return;
+    const list = state.employees;
     sel.innerHTML =
       '<option value="all">সবাই</option>' +
       list.map((s) => `<option value="${esc(s.username)}">${esc(s.username)}</option>`).join("");
     sel.value = state.ownerFilter;
   }
 
-  /* ---------------- PRODUCTS (POS) ---------------- */
+  /* ---------------- পণ্য (POS) ---------------- */
   function renderProducts() {
     const wrap = $("#products-list");
     if (!wrap) return;
@@ -346,7 +304,6 @@
       .join("");
   }
 
-  /* ---------------- CART ---------------- */
   function addToCart(pid, size, price) {
     const product = state.products.find((p) => p.id === pid);
     if (!product) return;
@@ -356,7 +313,6 @@
     else state.cart.push({ key, pid, item: product.name, size, qty: 1, price: Number(price) || 0 });
     renderCart();
   }
-
   function changeQty(key, delta) {
     const i = state.cart.findIndex((l) => l.key === key);
     if (i < 0) return;
@@ -364,7 +320,6 @@
     if (state.cart[i].qty <= 0) state.cart.splice(i, 1);
     renderCart();
   }
-
   const removeLine = (key) => { state.cart = state.cart.filter((l) => l.key !== key); renderCart(); };
   const cartCount = () => state.cart.reduce((s, l) => s + l.qty, 0);
   const cartTotal = () => state.cart.reduce((s, l) => s + l.qty * l.price, 0);
@@ -377,12 +332,11 @@
 
     if (!state.cart.length) {
       wrap.innerHTML = `<div class="empty-cart">${svg("cart", 48)}<p>কার্ট খালি</p>
-        <span>পণ্য যোগ করতে সাইজ বাটনে চাপ দিন</span></div>`;
+        <span>পণ্য যোগ করতে সাইজ বাটনে চাপুন</span></div>`;
       summary.style.display = "none";
       btn.disabled = true;
       return;
     }
-
     summary.style.display = "";
     btn.disabled = false;
     wrap.innerHTML = state.cart
@@ -409,11 +363,9 @@
   function updateTotals() {
     const total = cartTotal();
     $("#grand-total").textContent = money(total);
-
     const raw = $("#amount-paid").value;
     const paid = raw === "" ? total : Number(raw) || 0;
     const diff = Math.round((paid - total) * 100) / 100;
-
     const el = $("#change-due");
     const label = $("#change-due-row").firstElementChild;
     if (diff >= 0) {
@@ -427,7 +379,7 @@
     }
   }
 
-  /* ---------------- COMPLETE BILL ---------------- */
+  /* ---------------- বিল সম্পন্ন ---------------- */
   let saving = false;
   async function completeBill() {
     if (saving || !state.cart.length) return;
@@ -436,7 +388,6 @@
     const customer = ($("#customer-name").value || "").trim() || "Walk-in Customer";
     const raw = $("#amount-paid").value;
     const paid = raw === "" ? cartTotal() : Number(raw) || 0;
-
     const ok = await confirmDialog(`মোট ${money(cartTotal())} টাকা — বিল সম্পন্ন করবেন?`, "বিল নিশ্চিত করুন");
     if (!ok) return;
 
@@ -448,19 +399,16 @@
 
     try {
       const res = await S.createInvoice(
-        {
-          customer,
-          paid,
-          lines: state.cart.map((l) => ({ item: l.item, size: l.size, qty: l.qty, price: l.price })),
-        },
+        { customer, paid, lines: state.cart.map((l) => ({ item: l.item, size: l.size, qty: l.qty, price: l.price })) },
         state.user.username
       );
       state.cart = [];
       renderCart();
       $("#customer-name").value = "Walk-in Customer";
       $("#amount-paid").value = "0";
+      updateTotals();
       if (state.settings.auto_print) openReceipt(res);
-      else toast("বিল সেভ হয়েছে", "success");
+      else toast("বিল সেভ হয়েছে · " + esc(res.invoice.invoice_no), "success");
     } catch (e) {
       toast(e.message || "বিল সেভ করা যায়নি", "error");
     } finally {
@@ -470,7 +418,7 @@
     }
   }
 
-  /* ---------------- RECEIPT ---------------- */
+  /* ---------------- রিসিট ---------------- */
   function receiptHTML(payload, s) {
     const inv = payload.invoice;
     const items = payload.items || [];
@@ -482,10 +430,8 @@
           <td class="subtotal">${money(Number(i.qty) * Number(i.price))}</td>
         </tr>`)
       .join("");
-
     const diff = Number(inv.change || 0);
     const isDue = diff < 0;
-
     return `<div class="receipt-header">
         <div class="receipt-shop-name">${esc(s.shop_name)}</div>
         ${s.shop_address ? `<div class="receipt-shop-address">${esc(s.shop_address)}</div>` : ""}
@@ -496,8 +442,6 @@
         <div><span>তারিখ</span><b>${esc(inv.date_disp)}</b></div>
         <div><span>সময়</span><b>${esc(prettyTime(inv.time_disp))}</b></div>
         <div><span>সার্ভড</span><b>${esc(inv.seller)}</b></div>
-      </div>
-      <div class="receipt-info">
         <div><span>কাস্টমার</span><b>${esc(inv.customer)}</b></div>
       </div>
       <table class="receipt-table">
@@ -518,24 +462,23 @@
       `<div class="no-print receipt-actions">
         <button class="btn btn-primary" id="rp-print">${svg("print", 18)} প্রিন্ট করুন</button>
         <button class="btn btn-secondary" id="rp-close">${svg("back", 18)} ফিরে যান</button>
-      </div>`;
+       </div>`;
     showPage("print-page");
     window.scrollTo(0, 0);
     $("#rp-print").onclick = () => window.print();
     $("#rp-close").onclick = closePrint;
     if (state.settings.auto_print) setTimeout(() => window.print(), 300);
   }
-
   function closePrint() {
     showPage("billing-page");
     setView(state.view);
   }
 
-  /* ---------------- TODAY'S BILLS ---------------- */
-  function renderBills() {
+  /* ---------------- আজকের বিলসমূহ ---------------- */
+  async function renderBills() {
     const list = $("#bills-list");
+    $("#bills-count").textContent = `মোট ${S.statsToday(state.user).count}টি`;
     const rows = S.invoices({
-      date: S.todayStr(),
       seller: state.user.role === "owner" ? state.ownerFilter : undefined,
       username: state.user.username,
       role: state.user.role,
@@ -545,10 +488,8 @@
       list.innerHTML = `<div class="empty-state">${svg("receipt", 56)}<p>আজ কোনো বিল পাওয়া যায়নি</p></div>`;
       return;
     }
-
     const isOwner = state.user.role === "owner";
     const grand = rows.reduce((s, r) => s + Number(r.total || 0), 0);
-
     list.innerHTML =
       `<div class="bill-card summary-card">
         <div class="bill-header" style="margin:0">
@@ -575,28 +516,30 @@
         .join("");
   }
 
-  function reprint(invoiceNo) {
+  async function reprint(invoiceNo) {
     try {
-      const res = S.invoiceWithItems(invoiceNo, state.user.username, state.user.role);
+      const res = await S.invoiceWithItems(invoiceNo, state.user.username, state.user.role);
       const auto = state.settings.auto_print;
-      state.settings.auto_print = true; // reprint always opens the print dialog
+      state.settings.auto_print = true;
       openReceipt(res);
       state.settings.auto_print = auto;
     } catch (e) {
       toast(e.message || "রিপ্রিন্ট করা যায়নি", "error");
     }
   }
-
   async function deleteInvoice(no) {
     const ok = await confirmDialog(`বিল ${no} মুছে ফেলবেন?`, "বিল ডিলিট");
     if (!ok) return;
     try {
       await S.deleteInvoice(no);
+      renderBills();
       toast("বিল মুছে ফেলা হয়েছে", "success");
-    } catch (e) { toast(e.message, "error"); }
+    } catch (e) {
+      toast(e.message, "error");
+    }
   }
 
-  /* ---------------- PRODUCTS MANAGEMENT ---------------- */
+  /* ---------------- পণ্য ম্যানেজ (ওনার) ---------------- */
   function renderProductsManage() {
     const wrap = $("#products-manage-list");
     if (!state.products.length) {
@@ -648,10 +591,13 @@
       if (state.editingProductId) await S.updateProduct(state.editingProductId, body);
       else await S.addProduct(body);
       closeModal($("#product-modal"));
-      refreshData();
+      state.products = S.products();
+      renderProducts();
       renderProductsManage();
       toast("পণ্য সেভ হয়েছে", "success");
-    } catch (err) { toast(err.message, "error"); }
+    } catch (err) {
+      toast(err.message, "error");
+    }
   }
 
   async function deleteProduct(id) {
@@ -660,233 +606,16 @@
     if (!ok) return;
     try {
       await S.deleteProduct(id);
-      refreshData();
+      state.products = S.products();
+      renderProducts();
       renderProductsManage();
       toast("পণ্য মুছে ফেলা হয়েছে", "success");
-    } catch (e) { toast(e.message, "error"); }
-  }
-
-  /* ---------------- STAFF MANAGEMENT ---------------- */
-  function renderStaffManage() {
-    const wrap = $("#staff-manage-list");
-    const list = S.employees();
-    if (!list.length) {
-      wrap.innerHTML = `<div class="empty-state">${svg("users", 56)}<p>কোনো স্টাফ নেই</p></div>`;
-      return;
-    }
-    wrap.innerHTML = list
-      .map(
-        (s) => `<div class="manage-row${s.active === false ? " disabled-row" : ""}" data-id="${esc(s.id)}">
-        <div class="manage-main">
-          <div class="manage-name">
-            ${esc(s.username)}
-            ${s.role === "owner" ? '<span class="role-badge">ওনার</span>' : '<span class="role-badge staff">স্টাফ</span>'}
-            ${s.active === false ? '<span class="role-badge off">নিষ্ক্রিয়</span>' : ""}
-          </div>
-        </div>
-        <div class="manage-actions">
-          <button class="icon-btn-sm" data-edit-staff="${esc(s.id)}" aria-label="এডিট">${svg("edit", 16)}</button>
-          ${s.username === state.user.username ? "" : `<button class="icon-btn-sm danger" data-del-staff="${esc(s.id)}" aria-label="ডিলিট">${svg("trash", 16)}</button>`}
-        </div>
-      </div>`
-      )
-      .join("");
-  }
-
-  function openStaffModal(id) {
-    state.editingStaffId = id || null;
-    const s = id ? S.employees().find((x) => x.id === id) : null;
-    $("#staff-modal-title").textContent = s ? "স্টাফ এডিট করুন" : "নতুন স্টাফ";
-    $("#s-username").value = s ? s.username : "";
-    $("#s-username").disabled = !!s;
-    $("#s-password").value = "";
-    $("#s-pass-hint").textContent = s ? "(খালি রাখলে অপরিবর্তিত থাকবে)" : "";
-    $("#s-role").value = s ? s.role : "staff";
-    openModal($("#staff-modal"));
-    (s ? $("#s-password") : $("#s-username")).focus();
-  }
-
-  async function saveStaff(e) {
-    e.preventDefault();
-    const body = { role: $("#s-role").value };
-    const pw = $("#s-password").value.trim();
-    if (pw) body.password = pw;
-    try {
-      if (state.editingStaffId) {
-        await S.updateEmployee(state.editingStaffId, body);
-      } else {
-        body.username = $("#s-username").value.trim();
-        body.password = pw;
-        if (!body.username) return toast("ইউজারনেম লিখুন", "warning");
-        if (!body.password) return toast("পাসওয়ার্ড লিখুন", "warning");
-        await S.addEmployee(body);
-      }
-      closeModal($("#staff-modal"));
-      renderStaffManage();
-      renderStaffFilter();
-      toast("সেভ হয়েছে", "success");
-    } catch (err) { toast(err.message, "error"); }
-  }
-
-  async function deleteStaff(id) {
-    const s = S.employees().find((x) => x.id === id);
-    const ok = await confirmDialog(`"${s ? s.username : ""}" কে মুছে ফেলবেন?`, "স্টাফ মুছে ফেলুন");
-    if (!ok) return;
-    try {
-      await S.deleteEmployee(id, state.user.username);
-      renderStaffManage();
-      renderStaffFilter();
-      toast("মুছে ফেলা হয়েছে", "success");
-    } catch (e) { toast(e.message, "error"); }
-  }
-
-  /* ---------------- RECOVERY / BACKUP SAFETY ---------------- */
-  const DISMISS_KEY = "lfj_banner_dismissed_v1";
-
-  function bannerDismissed(kind) {
-    try { return JSON.parse(localStorage.getItem(DISMISS_KEY) || "{}")[kind] || 0; }
-    catch (e) { return 0; }
-  }
-  function dismissBanner(kind, days) {
-    try {
-      const all = JSON.parse(localStorage.getItem(DISMISS_KEY) || "{}");
-      all[kind] = Date.now() + (days || 3) * 86400000;
-      localStorage.setItem(DISMISS_KEY, JSON.stringify(all));
-    } catch (e) {}
-  }
-
-  /**
-   * The old banner warned about losing the browser database. That data lives on
-   * the server now, so what is worth warning about is a bill that is still
-   * only on this device.
-   */
-  function showPendingBanner() {
-    const pending = S.pendingCount();
-    if (!pending) return;
-    if (Date.now() < bannerDismissed("pending")) return;
-
-    const snaps = S.snapshots();
-    const newest = snaps[0];
-    $("#recovery-title").textContent = `${pending}টি বিল এখনো সার্ভারে পৌঁছায়নি`;
-    $("#recovery-detail").textContent = S.isOnline()
-      ? "ইন্টারনেট আছে। এখনই পাঠিয়ে দিলে বিল নম্বর ঠিক হয়ে যাবে।"
-      : `ইন্টারনেট ফিরলেই এগুলো নিজে থেকেই চলে যাবে${newest ? ` (সুরক্ষা কপি ${timeAgo(newest.ts)})` : ""}।`;
-    $("#recover-btn").textContent = "এখনই পাঠান";
-    $("#recovery-banner").classList.remove("hidden");
-  }
-
-  /** push the waiting bills to the server now */
-  async function doFlush() {
-    const btn = $("#recover-btn");
-    btn.disabled = true;
-    const label = btn.textContent;
-    btn.textContent = "পাঠানো হচ্ছে...";
-    try {
-      const res = await S.flushQueue();
-      updateConnection();
-      showPendingBanner();
-      if (res.sent) {
-        await S.sync();
-        refreshData();
-        toast(`${res.sent}টি বিল সার্ভারে পাঠানো হয়েছে`, "success");
-      }
-      if (S.pendingCount()) {
-        toast(`আরও ${S.pendingCount()}টি বিল বাকি আছে`, "warning");
-      }
     } catch (e) {
-      toast(e.message || "পাঠানো যায়নি", "error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = label;
+      toast(e.message, "error");
     }
   }
 
-  /** put back a local safety copy (cache + any unsent bills) */
-  async function doRecover() {
-    const snaps = S.snapshots();
-    if (!snaps.length) return toast("কোনো সুরক্ষা কপি নেই", "warning");
-    const ok = await confirmDialog(
-      `সবচেয়ে নতুন সুরক্ষা কপি (${timeAgo(snaps[0].ts)}, ${snaps[0].invoices}টি বিল) থেকে ডেটা ফেরানো হবে।\n` +
-      "এই ডিভাইসের বর্তমান তালিকা সেই কপি দিয়ে বদলে যাবে। চালিয়ে যাবেন?",
-      "ডেটা ফেরান"
-    );
-    if (!ok) return;
-    try {
-      S.restoreSnapshot(snaps[0].ts);
-      $("#recovery-banner").classList.add("hidden");
-      toast("ডেটা ফিরিয়ে আনা হয়েছে", "success");
-      refreshData();
-      updateConnection();
-    } catch (e) {
-      toast(e.message || "ফেরানো যায়নি", "error");
-    }
-  }
-
-  function timeAgo(ts) {
-    const s = Math.floor((Date.now() - ts) / 1000);
-    if (s < 60) return "এইমাত্র";
-    const m = Math.floor(s / 60);
-    if (m < 60) return m + " মিনিট আগে";
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + " ঘণ্টা আগে";
-    const d = Math.floor(h / 24);
-    return d + " দিন আগে";
-  }
-
-  function checkBackupReminder() {
-    if (!state.user || state.user.role !== "owner") return;
-    const d = S.daysSinceExport();
-    const overdue = d === -1 ? true : d >= 7;   // never exported, or 7+ days old
-    if (!overdue) return;
-    if (Date.now() < bannerDismissed("backup")) return;
-    const el = $("#backup-banner");
-    $("#backup-reminder-text").textContent =
-      d === -1 ? "এখনো কোনো ব্যাকআপ ফাইল নেওয়া হয়নি" : `শেষ ব্যাকআপ ${d} দিন আগে হয়েছিল`;
-    el.classList.remove("hidden");
-  }
-
-  function renderSnapshots() {
-    const wrap = $("#snapshot-list");
-    const snaps = S.snapshots();
-    $("#snap-max").textContent = toBn(S.MAX_SNAPSHOTS);
-    if (!snaps.length) {
-      wrap.innerHTML = `<p class="help-text">এখনো কোনো সুরক্ষা কপি নেই। পণ্য বা স্টাফ পরিবর্তন করলে তৈরি হবে।</p>`;
-      return;
-    }
-    wrap.innerHTML = snaps
-      .map(
-        (s) => `<div class="snapshot-row">
-        <div class="snapshot-main">
-          <div class="snapshot-time">${timeAgo(s.ts)}</div>
-          <div class="snapshot-meta">${s.invoices}টি বিল · ${(s.size / 1024).toFixed(1)} KB · ${reasonText(s.reason)}</div>
-        </div>
-        <button type="button" class="btn btn-sm btn-secondary" data-restore-snap="${s.ts}">ফেরান</button>
-      </div>`
-      )
-      .join("");
-  }
-
-  const reasonText = (r) =>
-    ({
-      auto: "স্বয়ংক্রিয়",
-      "before-import": "ইমপোর্টের আগে",
-      "before-reset": "রিসেটের আগে",
-      "before-restore": "রিস্টোরের আগে",
-    }[r] || "স্বয়ংক্রিয়");
-
-  const toBn = (n) => String(n).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[d]);
-
-  async function restoreSnapshot(ts) {
-    const ok = await confirmDialog("এই সুরক্ষা কপি থেকে ডেটা ফেরানো হবে। চালিয়ে যাবেন?", "সুরক্ষা কপি ফেরান");
-    if (!ok) return;
-    try {
-      S.restoreSnapshot(ts);
-      toast("ডেটা ফেরিয়ে আনা হয়েছে", "success");
-      setTimeout(() => location.reload(), 800);
-    } catch (e) { toast(e.message, "error"); }
-  }
-
-  /* ---------------- SETTINGS ---------------- */
+  /* ---------------- সেটিংস (স্থানীয়) ---------------- */
   function fillSettings() {
     const s = S.settings();
     $("#shop-name").value = s.shop_name || "";
@@ -894,33 +623,11 @@
     $("#shop-phone").value = s.shop_phone || "";
     $("#auto-print").checked = !!s.auto_print;
     $("#show-thankyou").checked = !!s.show_thankyou;
-    updateStorageUsage();
   }
-
-  function updateStorageUsage() {
-    const el = $("#storage-usage");
-    if (!el) return;
-    const bytes = S.usageBytes();
-    const kb = (bytes / 1024).toFixed(1);
-    const invoices = S.get().invoices.length;
-    const pct = Math.min(100, Math.round((bytes / (5 * 1024 * 1024)) * 100));
-    el.innerHTML = `এখন ডেটা: <b>${kb} KB</b> · মোট বিল: <b>${toBn(invoices)}</b>টি · স্টোরেজ ব্যবহার ${toBn(pct)}%`;
-
-    const li = $("#last-backup-info");
-    if (li) {
-      const d = S.daysSinceExport();
-      li.textContent =
-        d === -1
-          ? "এখনো কোনো ব্যাকআপ ফাইল ডাউনলোড করা হয়নি।"
-          : `শেষ ব্যাকআপ ফাইল: ${timeAgo(S.lastExport())}`;
-    }
-    renderSnapshots();
-  }
-
   async function saveSettings(e) {
     e.preventDefault();
     try {
-      state.settings = await S.saveSettings({
+      state.settings = S.saveSettingsChanges({
         shop_name: $("#shop-name").value.trim(),
         shop_address: $("#shop-address").value.trim(),
         shop_phone: $("#shop-phone").value.trim(),
@@ -932,52 +639,17 @@
       msg.textContent = "সেটিংস সেভ হয়েছে";
       setTimeout(() => msg.classList.add("hidden"), 3000);
       toast("সেটিংস সেভ হয়েছে", "success");
-    } catch (err) { toast(err.message, "error"); }
-  }
-
-  /* ---------------- BACKUP / RESTORE ---------------- */
-  function exportBackup() {
-    try {
-      const blob = new Blob([S.exportJSON()], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `livefruitjuice-backup-${S.todayStr()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast("ব্যাকআপ ফাইল ডাউনলোড হয়েছে", "success");
-    } catch (e) {
-      toast("ডাউনলোড করা যায়নি", "error");
+    } catch (err) {
+      toast(err.message, "error");
     }
   }
 
-  async function importBackup(file) {
-    try {
-      const text = await file.text();
-      if (await S.importJSON(text)) {
-        toast("ডেটা ফিরিয়ে আনা হয়েছে", "success");
-        setTimeout(() => location.reload(), 800);
-      }
-    } catch (e) {
-      toast(e.message || "ফাইলটি পড়া যায়নি", "error");
-    }
-  }
-
-  async function resetAll() {
-    if (await S.resetAll()) {
-      toast("সব ডেটা মুছে ফেলা হয়েছে", "success");
-      setTimeout(() => location.reload(), 700);
-    }
-  }
-
-  /* ---------------- WIRING ---------------- */
+  /* ---------------- ওয়্যারিং ---------------- */
   function wire() {
-    $("#login-form").addEventListener("submit", handleLogin);
-    $("#logout-btn").addEventListener("click", () => logout(false));
+    $("#login-form")?.addEventListener("submit", handleLogin);
+    $("#logout-btn")?.addEventListener("click", doLogout);
 
-    $(".toggle-password").addEventListener("click", (e) => {
+    $(".toggle-password")?.addEventListener("click", (e) => {
       const b = e.currentTarget;
       const inp = $("#password");
       const show = inp.type === "password";
@@ -986,22 +658,22 @@
       b.dataset.icon = show ? "lock" : "eye";
     });
 
-    $("#menu-toggle").addEventListener("click", () => {
+    $("#menu-toggle")?.addEventListener("click", () => {
       $("#sidebar").classList.contains("open") ? closeSidebar() : openSidebar();
     });
-    $("#sidebar-overlay").addEventListener("click", closeSidebar);
+    $("#sidebar-overlay")?.addEventListener("click", closeSidebar);
 
     $$(".nav-item").forEach((n) =>
       n.addEventListener("click", (e) => { e.preventDefault(); setView(n.dataset.page); })
     );
 
-    $("#product-search").addEventListener("input", renderProducts);
-    $("#products-list").addEventListener("click", (e) => {
+    $("#product-search")?.addEventListener("input", renderProducts);
+    $("#products-list")?.addEventListener("click", (e) => {
       const b = e.target.closest(".size-btn");
       if (b && !b.disabled) addToCart(b.dataset.pid, b.dataset.size, b.dataset.price);
     });
 
-    $("#cart-items").addEventListener("click", (e) => {
+    $("#cart-items")?.addEventListener("click", (e) => {
       const inc = e.target.closest("[data-inc]");
       const dec = e.target.closest("[data-dec]");
       const rm = e.target.closest("[data-remove]");
@@ -1010,26 +682,26 @@
       else if (rm) removeLine(rm.dataset.remove);
     });
 
-    $("#amount-paid").addEventListener("input", updateTotals);
-    $("#complete-bill-btn").addEventListener("click", completeBill);
+    $("#amount-paid")?.addEventListener("input", updateTotals);
+    $("#complete-bill-btn")?.addEventListener("click", completeBill);
 
-    $("#staff-filter").addEventListener("change", (e) => {
+    $("#staff-filter")?.addEventListener("change", (e) => {
       state.ownerFilter = e.target.value;
       renderBills();
     });
 
-    $("#bills-list").addEventListener("click", (e) => {
+    $("#bills-list")?.addEventListener("click", (e) => {
       const rp = e.target.closest("[data-reprint]");
       const del = e.target.closest("[data-del-inv]");
       if (rp) reprint(rp.dataset.reprint);
       else if (del) deleteInvoice(del.dataset.delInv);
     });
 
-    // product management
-    $("#new-product-btn").addEventListener("click", () => openProductModal(null));
-    $("#product-form").addEventListener("submit", saveProduct);
-    $("#p-cancel").addEventListener("click", () => closeModal($("#product-modal")));
-    $("#products-manage-list").addEventListener("click", (e) => {
+    // পণ্য ম্যানেজ
+    $("#new-product-btn")?.addEventListener("click", () => openProductModal(null));
+    $("#product-form")?.addEventListener("submit", saveProduct);
+    $("#p-cancel")?.addEventListener("click", () => closeModal($("#product-modal")));
+    $("#products-manage-list")?.addEventListener("click", (e) => {
       if (e.target.closest("[data-open-new-product]")) return openProductModal(null);
       const ed = e.target.closest("[data-edit-product]");
       const del = e.target.closest("[data-del-product]");
@@ -1037,47 +709,19 @@
       else if (del) deleteProduct(del.dataset.delProduct);
     });
 
-    // staff management
-    $("#new-staff-btn").addEventListener("click", () => openStaffModal(null));
-    $("#staff-form").addEventListener("submit", saveStaff);
-    $("#s-cancel").addEventListener("click", () => closeModal($("#staff-modal")));
-    $("#staff-manage-list").addEventListener("click", (e) => {
-      const ed = e.target.closest("[data-edit-staff]");
-      const del = e.target.closest("[data-del-staff]");
-      if (ed) openStaffModal(ed.dataset.editStaff);
-      else if (del) deleteStaff(del.dataset.delStaff);
+    // সেটিংস
+    $("#settings-form")?.addEventListener("submit", saveSettings);
+
+    // রিসিট
+    $("#rp-print")?.addEventListener("click", () => window.print());
+    $("#rp-close")?.addEventListener("click", closePrint);
+
+    // ফোকাসে রিফ্রেশ (অন্য ট্যাব/ডিভাইসের আপডেট আসতে পারে)
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && state.user) S.refreshInvoices().then(renderBills).catch(() => {});
     });
 
-    // settings + backup
-    $("#settings-form").addEventListener("submit", saveSettings);
-    $("#export-btn").addEventListener("click", exportBackup);
-    $("#import-input").addEventListener("change", (e) => {
-      if (e.target.files[0]) importBackup(e.target.files[0]);
-    });
-    $("#reset-btn").addEventListener("click", resetAll);
-    $("#import-from-login").addEventListener("click", () => $("#import-input").click());
-
-    // pending-bill banner + safety snapshots
-    $("#recover-btn").addEventListener("click", doFlush);
-    $("#recover-dismiss").addEventListener("click", () => {
-      dismissBanner("pending", 1);
-      $("#recovery-banner").classList.add("hidden");
-    });
-    $("#backup-now-btn").addEventListener("click", () => {
-      exportBackup();
-      dismissBanner("backup", 7);
-      $("#backup-banner").classList.add("hidden");
-    });
-    $("#backup-dismiss").addEventListener("click", () => {
-      dismissBanner("backup", 2);
-      $("#backup-banner").classList.add("hidden");
-    });
-    $("#snapshot-list").addEventListener("click", (e) => {
-      const b = e.target.closest("[data-restore-snap]");
-      if (b) restoreSnapshot(Number(b.dataset.restoreSnap));
-    });
-
-    // keyboard
+    // কীবোর্ড শর্টকাট
     document.addEventListener("keydown", (e) => {
       if (!$("#billing-page").classList.contains("active")) return;
       if (e.target.matches("input, textarea, select")) {
@@ -1091,62 +735,32 @@
     window.addEventListener("afterprint", () => {
       if ($("#print-page").classList.contains("active") && state.settings.auto_print) closePrint();
     });
-
-    // keep multiple tabs / windows of this device in sync
-    window.addEventListener("storage", (e) => {
-      if (e.key === S.KEY) {
-        S.load();
-        if (state.user) refreshData();
-        if (state.view === "today-bills") renderBills();
-        if (state.view === "products") renderProductsManage();
-        if (state.view === "staff") renderStaffManage();
-        if (state.view === "settings") fillSettings();
-        toast("অন্য উইন্ডোতে ডেটা বদলেছে", "info", 1800);
-      }
-    });
   }
 
-  /* ---------------- BOOT ---------------- */
+  /* ---------------- বুট ---------------- */
   async function init() {
-    S.load();
     wire();
     paintIcons();
     $("#logo-cup").innerHTML = svg("cup", 56, 'style="color:var(--color-primary)"');
-    renderProducts();
-    renderCart();
 
-    // the cookie on the server decides who is signed in; the local copy is
-    // only a hint, so the answer can take a moment on a slow connection
-    const user = await S.me();
-
-    if (user) {
-      state.user = user;
-      enterApp();
-      maybeOfferMigration();
+    // সেশন থাকলে সরাসরি অ্যাপে; না থাকলে লগইন
+    const existing = S.currentUser();
+    if (existing) {
+      state.user = existing;
+      try {
+        await S.refreshAll();
+        enterApp();
+      } catch (e) {
+        state.user = null;
+        S.logout();
+        showPage("login-page");
+      }
     } else {
       showPage("login-page");
-      const err = $("#login-error");
-      const problem = S.statusError();
-      if (problem) {
-        err.textContent = problem;
-        err.classList.remove("hidden");
-      }
     }
+    renderProducts();
+    renderCart();
     updateConnection();
-    showPendingBanner();
-    startTimers();
-  }
-
-  /** periodic housekeeping: retry the queue and re-check the connection */
-  function startTimers() {
-    if (global.__lfjTimers) return;
-    global.__lfjTimers = setInterval(() => {
-      if (S.pendingCount() && S.isOnline()) S.flushQueue().then(refreshData).catch(() => {});
-    }, 30000);
-    global.addEventListener("online", () => S.flushQueue().then(() => {
-      updateConnection();
-      refreshData();
-    }).catch(() => {}));
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
