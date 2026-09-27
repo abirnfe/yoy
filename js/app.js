@@ -130,9 +130,10 @@
       $("#password").value = "";
       enterApp();
     } catch (ex) {
+      console.error("login error:", ex);
       err.textContent =
         ex && ex.offline
-          ? "সার্ভারের সাথে সংযোগ হচ্ছে না — ইন্টারনেট চেক করুন"
+          ? "সাপোর্টারে যুক্ত হওয়া যায়নি — ইন্টারনেট চেক করুন; file:// হলে http://localhost দিয়ে সার্ভ করুন।"
           : ex.message || "ইউজারনেম বা পাসওয়ার্ড ভুল";
       err.classList.remove("hidden");
       $("#password").focus();
@@ -232,6 +233,19 @@
     const el = $("#sync-status");
     const banner = $("#connection-banner");
     if (!el) return;
+    // file://-এ সরাসরি খুললে fetch ব্লক হয় → ভুল "অফলাইন" বার্তা না দিই
+    if (location.protocol === "file:") {
+      el.hidden = false;
+      el.className = "sync-badge offline";
+      el.innerHTML = `${svg("alert", 14)} file://`;
+      el.title = "ফাইল থেকে সরাসরি খুলা হয়েছে — সাপোর্টারে যুক্ত হতে পারে না";
+      if (banner) {
+        banner.classList.remove("hidden");
+        $("#connection-title").textContent = "ফাইল থেকে সরাসরি খুলছেন";
+        $("#connection-detail").textContent = "Supabase-এর সাথে সংযোগ হয় না — http://localhost দিয়ে সার্ভ করুন।";
+      }
+      return;
+    }
     const online = S.isOnline();
     el.dataset.ready = "1";
     el.hidden = false;
