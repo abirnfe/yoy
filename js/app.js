@@ -329,6 +329,8 @@
     const summary = $("#cart-summary");
     const btn = $("#complete-bill-btn");
     $("#cart-count").textContent = `${cartCount()} আইটেম`;
+    const clearBtn = $("#clear-cart-btn");
+    if (clearBtn) clearBtn.style.display = state.cart.length ? "" : "none";
 
     if (!state.cart.length) {
       wrap.innerHTML = `<div class="empty-cart">${svg("cart", 48)}<p>কার্ট খালি</p>
@@ -358,6 +360,17 @@
         </div>`)
       .join("");
     updateTotals();
+  }
+
+  async function clearCart() {
+    if (!state.cart.length) return;
+    const ok = await confirmDialog(
+      "কার্ট ফাঁকা করে দিলে বিক্রয় আইটেম মুছে যায়। ফাঁকা করবেন?",
+      "কার্ট ফাঁকা করো"
+    );
+    if (!ok) return;
+    state.cart = [];
+    renderCart();
   }
 
   function updateTotals() {
@@ -684,6 +697,7 @@
 
     $("#amount-paid")?.addEventListener("input", updateTotals);
     $("#complete-bill-btn")?.addEventListener("click", completeBill);
+    $("#clear-cart-btn")?.addEventListener("click", clearCart);
 
     $("#staff-filter")?.addEventListener("change", (e) => {
       state.ownerFilter = e.target.value;

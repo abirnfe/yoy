@@ -1113,6 +1113,7 @@ body {
 }
 
 .receipt-actions .btn { flex: 1; min-width: 120px; }
+.checkout-actions { display: flex; flex-direction: column; gap: var(--space-sm); }
 
 .bill-btn.danger:hover {
   border-color: var(--color-danger);
