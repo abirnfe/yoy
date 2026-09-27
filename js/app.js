@@ -8,6 +8,7 @@
   "use strict";
 
   const S = window.Store;
+  const API = window.API;
   const CURRENCY = "৳";
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -263,6 +264,45 @@
         $("#connection-title").textContent = "ইন্টারনেট নেই";
         $("#connection-detail").textContent = "Supabase-এর সাথে সংযোগ বিচ্ছিন্ন। বিল দিতে পারবেন না।";
       }
+    }
+  }
+
+  /* ---------------- সংযোগ প্রোব (অনলাইনে কেন ব্যরকম দেখায় — নির্ভরতা বাড়িয়ে দেওয়া) ---------------- */
+  async function probeConnection() {
+    const el = $("#sync-status");
+    const banner = $("#connection-banner");
+    if (!el) return;
+    function showBanner(title, detail) {
+      el.hidden = false;
+      el.className = "sync-badge offline";
+      el.innerHTML = `${svg("alert", 14)} সংযোগ ব্যরকম`;
+      el.title = title;
+      if (banner) {
+        banner.classList.remove("hidden");
+        $("#connection-title").textContent = title;
+        $("#connection-detail").textContent = detail;
+      }
+    }
+    try {
+      const h = await API.health();
+      if (h && h.ok) {
+        el.dataset.ready = "1";
+        el.hidden = false;
+        el.className = "sync-badge online";
+        el.innerHTML = `${svg("check", 14)} সংযুক্ত`;
+        el.title = "Supabase-এর সাথে যুক্ত";
+        if (banner) banner.classList.add("hidden");
+      } else if (h && (h.status === 401 || h.status === 403)) {
+        showBanner(
+          "কী/নিরাপত্য ব্লক",
+          h.message || "অ্যাক্সেস অনুমোদিত নয় — config.js-এর কী ও Supabase RLS পলিসি চেক করুন।"
+        );
+      } else {
+        showBanner("সংযোগ ব্যরকম", "নেটওয়ার্ক/প্রক্সি বা সার্ভার এরর — কনসোলে বিস্তারিত।");
+      }
+    } catch (e) {
+      console.error("connectivity probe:", e);
+      showBanner("সংযুক্ত হয়নি", "নেটওয়ার্ক/প্রক্সি/ফায়ারওয়াল চেক করুন — সাপোর্টায় বাধা পড়ছে হতে পারে।");
     }
   }
 
@@ -789,6 +829,7 @@
     renderProducts();
     renderCart();
     updateConnection();
+    probeConnection();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

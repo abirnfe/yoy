@@ -199,10 +199,21 @@
     return true;
   }
 
+  // সংযোগ পরীক্ষা — count-only (head:true), কোনো রো/হ্যাশ ফেরত দেয় না
+  async function health() {
+    await ready();
+    const { count, error } = await client
+      .from("employees")
+      .select("*", { count: "exact", head: true });
+    if (error) return { ok: false, status: error.status, code: error.code, message: error.message };
+    return { ok: true, count: count ?? 0 };
+  }
+
   global.API = {
     ApiError,
     OfflineError,
     isOffline: (e) => e && (e.offline || e instanceof OfflineError),
+    health,
     fetchEmployee,
     fetchEmployees,
     fetchProducts,
